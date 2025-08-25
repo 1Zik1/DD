@@ -38,12 +38,11 @@ def home(request):
     if teacher:
         # Получаем данные из представления teacher_portfolio
         try:
-            # Убедимся, что модель TeacherPortfolio импортирована
+            # проверка, что модель TeacherPortfolio импортирована
             from .models import TeacherPortfolio
             portfolio = TeacherPortfolio.objects.get(teacher_id=teacher.id)
             context['portfolio'] = portfolio
         except (NameError, ImportError, TeacherPortfolio.DoesNotExist):
-            # Альтернативный способ получения данных, если представления не работают
             # Образование
             education_count = Education.objects.filter(teacher=teacher).count()
             
@@ -83,7 +82,7 @@ def profile(request):
     except Teacher.DoesNotExist:
         teacher = None
     
-    # Проверяем, если пользователь хочет редактировать или удалить фото
+    # проверка, если пользователь хочет редактировать или удалить фото
     edit_mode = 'edit' in request.GET
     
     if request.method == 'POST':
@@ -115,7 +114,6 @@ def profile(request):
 @login_required
 def education_list(request):
     """Список образования для текущего педагога"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -135,7 +133,6 @@ def education_list(request):
 @login_required
 def education_create(request):
     """Создание новой записи об образовании"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -165,7 +162,6 @@ def education_create(request):
 @login_required
 def education_edit(request, pk):
     """Редактирование существующей записи об образовании"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -195,7 +191,6 @@ def education_edit(request, pk):
 @login_required
 def education_delete(request, pk):
     """Удаление записи об образовании"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -220,7 +215,6 @@ def education_delete(request, pk):
 @login_required
 def experience_list(request):
     """Список опыта работы для текущего педагога"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -240,7 +234,6 @@ def experience_list(request):
 @login_required
 def experience_create(request):
     """Создание новой записи об опыте работы"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -270,7 +263,6 @@ def experience_create(request):
 @login_required
 def experience_edit(request, pk):
     """Редактирование существующей записи об опыте работы"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -300,7 +292,6 @@ def experience_edit(request, pk):
 @login_required
 def experience_delete(request, pk):
     """Удаление записи об опыте работы"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -325,7 +316,6 @@ def experience_delete(request, pk):
 @login_required
 def qualification_list(request):
     """Список квалификации для текущего педагога"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -345,7 +335,6 @@ def qualification_list(request):
 @login_required
 def qualification_create(request):
     """Создание новой записи о квалификации"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -375,7 +364,6 @@ def qualification_create(request):
 @login_required
 def qualification_edit(request, pk):
     """Редактирование существующей записи о квалификации"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -405,7 +393,6 @@ def qualification_edit(request, pk):
 @login_required
 def qualification_delete(request, pk):
     """Удаление записи о квалификации"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -430,7 +417,6 @@ def qualification_delete(request, pk):
 @login_required
 def award_list(request):
     """Список наград для текущего педагога"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -450,7 +436,6 @@ def award_list(request):
 @login_required
 def award_create(request):
     """Создание новой записи о награде"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -480,7 +465,6 @@ def award_create(request):
 @login_required
 def award_edit(request, pk):
     """Редактирование существующей записи о награде"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -510,7 +494,6 @@ def award_edit(request, pk):
 @login_required
 def award_delete(request, pk):
     """Удаление записи о награде"""
-    # ВРЕМЕННО: создаем Teacher если не существует
     try:
         teacher = request.user.teacher
     except Teacher.DoesNotExist:
@@ -633,7 +616,6 @@ def teaching_load_delete(request, pk):
     })
 
 # === ДИСЦИПЛИНЫ ===
-# === ДИСЦИПЛИНЫ ===
 @login_required
 def discipline_list(request):
     """Список всех дисциплин"""
@@ -706,7 +688,7 @@ def my_disciplines(request):
     
     # Получаем уникальные дисциплины из нагрузки педагога
     disciplines = Discipline.objects.filter(
-        teaching_loads__teacher=teacher  # ← Исправлено!
+        teaching_loads__teacher=teacher  
     ).distinct().order_by('name')
     
     return render(request, 'portfolio/my_disciplines.html', {
@@ -780,7 +762,7 @@ def group_detail(request, pk):
     })
 
 
-# === УСПЕВАЕМОСТЬ СТУДЕНТОВ ===
+# УСПЕВАЕМОСТЬ СТУДЕНТОВ 
 @login_required
 def grades_list(request):
     """Список оценок студентов"""
@@ -803,7 +785,7 @@ def grades_list(request):
     })
 
 
-# === ПУБЛИКАЦИИ ===
+#  ПУБЛИКАЦИИ 
 @login_required
 def publication_list(request):
     """Список публикаций педагога"""
@@ -895,7 +877,7 @@ def publication_delete(request, pk):
     })
 
 
-# === КУРСОВЫЕ РАБОТЫ ===
+#  КУРСОВЫЕ РАБОТЫ 
 @login_required
 def coursework_list(request):
     """Список курсовых работ педагога"""
@@ -909,7 +891,6 @@ def coursework_list(request):
             birth_date="1990-01-01"
         )
     
-    # Предполагается, что Coursework связан с Teacher через поле 'teacher'
     courseworks = teacher.courseworks.all().select_related('student', 'discipline').order_by('-year')
     return render(request, 'portfolio/coursework_list.html', {
         'teacher': teacher,
@@ -933,12 +914,10 @@ def coursework_create(request):
         form = CourseworkForm(request.POST)
         if form.is_valid():
             coursework = form.save(commit=False)
-            coursework.teacher = teacher # Устанавливаем преподавателя
-            # Предполагается, что студент и дисциплина выбираются в форме
+            coursework.teacher = teacher 
             coursework.save()
             return redirect('portfolio:coursework_list')
     else:
-        # Ограничиваем выбор студента и дисциплины (опционально)
         form = CourseworkForm() 
     return render(request, 'portfolio/coursework_form.html', {
         'form': form,
@@ -989,7 +968,7 @@ def coursework_delete(request, pk):
     })
 
 
-# === ДИПЛОМНЫЕ РАБОТЫ ===
+#  ДИПЛОМНЫЕ РАБОТЫ 
 @login_required
 def diploma_list(request):
     """Список дипломных работ педагога (руководитель)"""
@@ -1003,7 +982,7 @@ def diploma_list(request):
             birth_date="1990-01-01"
         )
     
-    # Предполагается, что Diploma связан с Teacher через поле 'supervisor'
+    
     diplomas = teacher.diplomas_supervised.all().select_related('student').order_by('-year')
     return render(request, 'portfolio/diploma_list.html', {
         'teacher': teacher,
@@ -1027,8 +1006,7 @@ def diploma_create(request):
         form = DiplomaForm(request.POST)
         if form.is_valid():
             diploma = form.save(commit=False)
-            diploma.supervisor = teacher # Устанавливаем руководителя
-            # Предполагается, что студент выбирается в форме
+            diploma.supervisor = teacher 
             diploma.save()
             return redirect('portfolio:diploma_list')
     else:
@@ -1047,7 +1025,7 @@ def diploma_edit(request, pk):
     except Teacher.DoesNotExist:
         return redirect('portfolio:profile')
     
-    # Проверяем, что текущий преподаватель является руководителем
+    # проверка, что текущий преподаватель является руководителем
     diploma = get_object_or_404(Diploma, pk=pk, supervisor=teacher)
     
     if request.method == 'POST':
@@ -1072,7 +1050,7 @@ def diploma_delete(request, pk):
     except Teacher.DoesNotExist:
         return redirect('portfolio:profile')
     
-    # Проверяем, что текущий преподаватель является руководителем
+    # проверка, что текущий преподаватель является руководителем
     diploma = get_object_or_404(Diploma, pk=pk, supervisor=teacher)
     
     if request.method == 'POST':
@@ -1083,7 +1061,7 @@ def diploma_delete(request, pk):
         'diploma': diploma
     })
 
-# === ОЛИМПИАДЫ ===
+#  ОЛИМПИАДЫ 
 @login_required
 def olympiad_list(request):
     """Список олимпиад студентов, подготовленных педагогом"""
@@ -1097,7 +1075,6 @@ def olympiad_list(request):
             birth_date="1990-01-01"
         )
     
-    # Предполагается, что Olympiad связан с Teacher через поле 'teacher' (подготовивший педагог)
     olympiads = teacher.olympiads_prepared.all().select_related('student', 'student__group').order_by('-year', '-event_date')
     return render(request, 'portfolio/olympiad_list.html', {
         'teacher': teacher,
@@ -1121,8 +1098,7 @@ def olympiad_create(request):
         form = OlympiadForm(request.POST)
         if form.is_valid():
             olympiad = form.save(commit=False)
-            olympiad.teacher = teacher # Устанавливаем подготовившего педагога
-            # Предполагается, что студент выбирается в форме
+            olympiad.teacher = teacher 
             olympiad.save()
             return redirect('portfolio:olympiad_list')
     else:
@@ -1141,7 +1117,7 @@ def olympiad_edit(request, pk):
     except Teacher.DoesNotExist:
         return redirect('portfolio:profile')
     
-    # Проверяем, что текущий преподаватель является подготовившим педагогом
+    # проверка, что текущий преподаватель является подготовившим педагогом
     olympiad = get_object_or_404(Olympiad, pk=pk, teacher=teacher)
     
     if request.method == 'POST':
@@ -1166,7 +1142,6 @@ def olympiad_delete(request, pk):
     except Teacher.DoesNotExist:
         return redirect('portfolio:profile')
     
-    # Проверяем, что текущий преподаватель является подготовившим педагогом
     olympiad = get_object_or_404(Olympiad, pk=pk, teacher=teacher)
     
     if request.method == 'POST':

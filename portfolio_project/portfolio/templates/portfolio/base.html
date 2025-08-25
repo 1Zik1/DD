@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Портфолио педагога{% endblock %}</title>
-    <!-- Подключение Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Подключение Font Awesome для иконок -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Базовые стили для HTML и BODY */
         html, body {
             height: 100%;
             margin: 0;
@@ -16,7 +13,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        /* Основные стили страницы */
         body {
             background-color: #f8f9fa;
             min-height: 100vh;
@@ -24,20 +20,17 @@
             flex-direction: column;
         }
 
-        /* Контейнер для всего содержимого */
         .container-fluid {
             flex: 1;
             padding-left: 0;
             padding-right: 0;
         }
 
-        /* Стили для строки с меню и контентом */
         .row {
             margin-left: 0;
             margin-right: 0;
         }
 
-        /* Стили для бокового меню (sidebar) */
         .sidebar {
             min-height: 100vh;
             background-color: #ffffff;
@@ -47,7 +40,6 @@
             width: 250px;
             overflow-y: auto;
             z-index: 1000;
-            will-change: transform; /* Для аппаратного ускорения анимации */
         }
 
         /* Заголовок в меню */
@@ -102,7 +94,7 @@
         /* Стили для открытого подменю */
         .dropdown:hover > .dropdown-content {
             opacity: 1;
-            max-height: 500px; /* Достаточно для большинства подменю */
+            max-height: 500px; 
         }
 
         /* Стили для пунктов внутри подменю */
@@ -262,7 +254,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Добавляем небольшую задержку перед закрытием для предотвращения случайных закрытий
             let timeout;
             $('.dropdown').hover(
                 function() {

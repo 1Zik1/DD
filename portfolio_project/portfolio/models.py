@@ -36,7 +36,7 @@ class Teacher(models.Model):
         verbose_name = "Педагог"
         verbose_name_plural = "Педагоги"
         indexes = [
-            models.Index(fields=['last_name', 'first_name']),  # Для ускорения поиска
+            models.Index(fields=['last_name', 'first_name']),  
         ]
 
     def __str__(self):
@@ -96,7 +96,7 @@ class Education(models.Model):
         verbose_name = "Образование"
         verbose_name_plural = "Образование"
         indexes = [
-            models.Index(fields=['teacher_id']),  # Для ускорения запросов по педагогу
+            models.Index(fields=['teacher_id']),  #  ускорения запросов по педагогу
         ]
 
     def __str__(self):
@@ -129,7 +129,7 @@ class Experience(models.Model):
         verbose_name = "Опыт работы"
         verbose_name_plural = "Опыт работы"
         indexes = [
-            models.Index(fields=['teacher_id', 'start_date', 'end_date']),  # Для ускорения запросов по датам
+            models.Index(fields=['teacher_id', 'start_date', 'end_date']),  #  ускорения запросов по датам
         ]
 
     def __str__(self):
@@ -155,7 +155,7 @@ class Qualification(models.Model):
         verbose_name = "Квалификация"
         verbose_name_plural = "Квалификация"
         indexes = [
-            models.Index(fields=['teacher_id']),  # Для ускорения запросов по педагогу
+            models.Index(fields=['teacher_id']),  #  ускорения запросов по педагогу
         ]
 
     def __str__(self):
@@ -188,7 +188,7 @@ class Award(models.Model):
         verbose_name = "Награда"
         verbose_name_plural = "Награды"
         indexes = [
-            models.Index(fields=['teacher_id', 'level']),  # Для ускорения запросов по уровню
+            models.Index(fields=['teacher_id', 'level']),  #  ускорения запросов по уровню
         ]
 
     def __str__(self):
@@ -230,7 +230,7 @@ class KnowledgeExchange(models.Model):
         verbose_name = "Обмен опытом"
         verbose_name_plural = "Обмен опытом"
         indexes = [
-            models.Index(fields=['teacher_id', 'event_date']),  # Для ускорения запросов по дате
+            models.Index(fields=['teacher_id', 'event_date']),  #  ускорения запросов по дате
         ]
 
     def __str__(self):
@@ -334,7 +334,7 @@ class TeachingLoad(models.Model):
         verbose_name = "Учебная нагрузка"
         verbose_name_plural = "Учебная нагрузка"
         indexes = [
-            models.Index(fields=['teacher_id', 'discipline_id', 'group_id']),  # Для ускорения запросов
+            models.Index(fields=['teacher_id', 'discipline_id', 'group_id']),  #  ускорения запросов
         ]
 
     def __str__(self):
@@ -368,7 +368,7 @@ class Student(models.Model):
         verbose_name = "Студент"
         verbose_name_plural = "Студенты"
         indexes = [
-            models.Index(fields=['group_id']),  # Для ускорения запросов по группе
+            models.Index(fields=['group_id']),  #  ускорения запросов по группе
         ]
 
     def __str__(self):
@@ -407,7 +407,7 @@ class Grade(models.Model):
         verbose_name = "Оценка"
         verbose_name_plural = "Оценки"
         indexes = [
-            models.Index(fields=['student_id', 'discipline_id', 'teacher_id']),  # Для ускорения запросов
+            models.Index(fields=['student_id', 'discipline_id', 'teacher_id']),  #  ускорения запросов
         ]
 
     def __str__(self):
@@ -444,7 +444,7 @@ class Publication(models.Model):
         verbose_name = "Публикация"
         verbose_name_plural = "Публикации"
         indexes = [
-            models.Index(fields=['teacher_id']),  # Для ускорения запросов по педагогу
+            models.Index(fields=['teacher_id']),  #  ускорения запросов по педагогу
         ]
 
     def __str__(self):
@@ -473,7 +473,7 @@ class Diploma(models.Model):
         verbose_name = "Дипломная работа"
         verbose_name_plural = "Дипломные работы"
         indexes = [
-            models.Index(fields=['supervisor_id']),  # Для ускорения запросов по руководителю
+            models.Index(fields=['supervisor_id']),  #  ускорения запросов по руководителю
         ]
 
     def __str__(self):
@@ -502,7 +502,7 @@ class Coursework(models.Model):
         verbose_name = "Курсовая работа"
         verbose_name_plural = "Курсовые работы"
         indexes = [
-            models.Index(fields=['teacher_id', 'discipline_id']),  # Для ускорения запросов
+            models.Index(fields=['teacher_id', 'discipline_id']),  #  ускорения запросов
         ]
 
     def __str__(self):
@@ -541,7 +541,7 @@ class Olympiad(models.Model):
         verbose_name = "Олимпиада"
         verbose_name_plural = "Олимпиады"
         indexes = [
-            models.Index(fields=['teacher_id', 'level']),  # Для ускорения запросов
+            models.Index(fields=['teacher_id', 'level']),  #  ускорения запросов
         ]
 
     def __str__(self):

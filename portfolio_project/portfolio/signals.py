@@ -15,7 +15,7 @@ def create_teacher_profile(sender, instance, created, **kwargs):
     if created:
         Teacher.objects.create(
             user=instance,
-            last_name="",  # Пустая строка вместо NULL
-            first_name="",  # Пустая строка вместо NULL
-            birth_date=date(1900, 1, 1)  # Минимальная допустимая дата
+            last_name="",  
+            first_name="",  
+            birth_date=date(1900, 1, 1)  
         )

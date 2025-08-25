@@ -31,7 +31,6 @@ class TeacherForm(forms.ModelForm):
         """Валидация формата телефона"""
         phone = self.cleaned_data.get('phone')
         if phone:
-            # Удаляем все нецифровые символы кроме плюса в начале
             cleaned_phone = re.sub(r'[^\d\+]', '', phone)
             
             # Проверяем, начинается ли с плюса
@@ -345,5 +344,5 @@ class OlympiadForm(forms.ModelForm):
 
     def clean_place(self):
         place = self.cleaned_data.get('place')
-        # Валидация места уже есть в модели (1-3), но можно добавить кастомную
+        # Валидация 
         return place
