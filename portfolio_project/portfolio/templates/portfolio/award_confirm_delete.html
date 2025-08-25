@@ -1,0 +1,39 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить награду{% endblock %}
+{% block header %}Удалить награду{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить запись о награде?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ award.name }}</h5>
+                <p class="card-text">
+                    <strong>Организация:</strong> {{ award.organization }}<br>
+                    <strong>Дата получения:</strong> {{ award.received_date|date:"d.m.Y" }}<br>
+                    <strong>Уровень:</strong> 
+                    {% if award.level == 'State' %}Государственная{% endif %}
+                    {% if award.level == 'Regional' %}Региональная{% endif %}
+                    {% if award.level == 'Departmental' %}Ведомственная{% endif %}
+                    {% if award.level == 'Other' %}Другая{% endif %}<br>
+                    {% if award.description %}
+                    <strong>Описание:</strong> {{ award.description }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:award_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

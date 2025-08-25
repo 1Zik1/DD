@@ -1,0 +1,92 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block header %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>{{ title }}</span>
+        <a href="{% url 'portfolio:discipline_list' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-times"></i> Отмена
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <div class="form-group">
+                    <label class="form-label">Название дисциплины *</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="text-danger">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Код цикла</label>
+                        {{ form.cycle_code }}
+                        {% if form.cycle_code.errors %}
+                            <div class="text-danger">{{ form.cycle_code.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Форма аттестации</label>
+                        {{ form.assessment_type }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Лекционные часы</label>
+                        {{ form.lecture_hours }}
+                        {% if form.lecture_hours.errors %}
+                            <div class="text-danger">{{ form.lecture_hours.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Практические часы</label>
+                        {{ form.practice_hours }}
+                        {% if form.practice_hours.errors %}
+                            <div class="text-danger">{{ form.practice_hours.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Лабораторные часы</label>
+                        {{ form.lab_hours }}
+                        {% if form.lab_hours.errors %}
+                            <div class="text-danger">{{ form.lab_hours.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="form-group">
+                    <label class="form-label">Описание</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="text-danger">{{ form.description.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:discipline_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ button_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить олимпиаду{% endblock %}
+{% block header %}Удалить олимпиаду{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить эту запись об олимпиаде?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ olympiad.name }}</h5>
+                <p class="card-text">
+                    <strong>Студент:</strong> {{ olympiad.student.last_name }} {{ olympiad.student.first_name }} {{ olympiad.student.middle_name|default:"" }}<br>
+                    <strong>Уровень:</strong>
+                    {% if olympiad.level == 'School' %}Школьная{% endif %}
+                    {% if olympiad.level == 'College' %}Колледжа{% endif %}
+                    {% if olympiad.level == 'City' %}Городская{% endif %}
+                    {% if olympiad.level == 'Regional' %}Региональная{% endif %}
+                    {% if olympiad.level == 'National' %}Всероссийская{% endif %}
+                    {% if olympiad.level == 'International' %}Международная{% endif %}
+                    <br>
+                    {% if olympiad.place %}
+                    <strong>Место:</strong>
+                        {% if olympiad.place == 1 %}🥇 1{% elif olympiad.place == 2 %}🥈 2{% elif olympiad.place == 3 %}🥉 3{% else %}{{ olympiad.place }}{% endif %}
+                    <br>
+                    {% endif %}
+                    {% if olympiad.year %}
+                    <strong>Год:</strong> {{ olympiad.year }}<br>
+                    {% endif %}
+                    {% if olympiad.event_date %}
+                    <strong>Дата проведения:</strong> {{ olympiad.event_date|date:"d.m.Y" }}<br>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:olympiad_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

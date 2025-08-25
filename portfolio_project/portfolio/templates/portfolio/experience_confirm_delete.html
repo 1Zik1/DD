@@ -1,0 +1,37 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить опыт работы{% endblock %}
+{% block header %}Удалить опыт работы{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить запись об опыте работы?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ experience.organization }}</h5>
+                <p class="card-text">
+                    <strong>Должность:</strong> {{ experience.position }}<br>
+                    <strong>Тип:</strong> 
+                    {% if experience.experience_type == 'General' %}Общий{% endif %}
+                    {% if experience.experience_type == 'Education' %}Образование{% endif %}
+                    {% if experience.experience_type == 'College' %}Колледж{% endif %}<br>
+                    <strong>Период:</strong> 
+                    {% if experience.start_date %}{{ experience.start_date|date:"d.m.Y" }}{% endif %}
+                    {% if experience.end_date %} - {{ experience.end_date|date:"d.m.Y" }}{% else %} - Наст. время{% endif %}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:experience_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

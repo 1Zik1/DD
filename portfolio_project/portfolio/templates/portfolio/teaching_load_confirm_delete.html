@@ -1,0 +1,43 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить учебную нагрузку{% endblock %}
+{% block header %}Удалить учебную нагрузку{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить запись об учебной нагрузке?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ teaching_load.discipline.name }}</h5>
+                <p class="card-text">
+                    <strong>Группа:</strong> {{ teaching_load.group.number }}<br>
+                    <strong>Год:</strong> {{ teaching_load.year }}<br>
+                    <strong>Семестр:</strong> {{ teaching_load.semester }}<br>
+                    <strong>Тип занятия:</strong> 
+                    {% if teaching_load.lesson_type == 'Lecture' %}Лекция{% endif %}
+                    {% if teaching_load.lesson_type == 'Practice' %}Практика{% endif %}
+                    {% if teaching_load.lesson_type == 'Lab' %}Лабораторная{% endif %}
+                    {% if teaching_load.lesson_type == 'Consultation' %}Консультация{% endif %}
+                    {% if teaching_load.lesson_type == 'Exam' %}Экзамен{% endif %}<br>
+                    <strong>Часы:</strong> {{ teaching_load.hours }}<br>
+                    <strong>Форма обучения:</strong> 
+                    {% if teaching_load.study_form == 'Full-time' %}Очная{% endif %}
+                    {% if teaching_load.study_form == 'Part-time' %}Заочная{% endif %}
+                    {% if teaching_load.study_form == 'Mixed' %}Очно-заочная{% endif %}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:teaching_load_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить квалификацию{% endblock %}
+{% block header %}Удалить квалификацию{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить запись о квалификации?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ qualification.program }}</h5>
+                <p class="card-text">
+                    <strong>Организация:</strong> {{ qualification.organization }}<br>
+                    <strong>Дата выдачи:</strong> {{ qualification.issue_date|date:"d.m.Y" }}<br>
+                    <strong>Часы:</strong> {{ qualification.hours }}<br>
+                    <strong>Номер сертификата:</strong> {{ qualification.certificate_number|default:"—" }}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:qualification_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

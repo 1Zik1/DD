@@ -1,0 +1,33 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить группу{% endblock %}
+{% block header %}Удалить группу{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить группу?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ group.number }}</h5>
+                <p class="card-text">
+                    <strong>Специальность:</strong> {{ group.specialty|default:"—" }}<br>
+                    <strong>Курс:</strong> {{ group.course }}<br>
+                    <strong>Год набора:</strong> {{ group.admission_year }}<br>
+                    <strong>Студентов:</strong> {{ group.students.count }}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:group_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

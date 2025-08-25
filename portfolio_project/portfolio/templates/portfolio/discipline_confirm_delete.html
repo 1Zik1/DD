@@ -1,0 +1,40 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить дисциплину{% endblock %}
+{% block header %}Удалить дисциплину{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить дисциплину?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ discipline.name }}</h5>
+                <p class="card-text">
+                    <strong>Код цикла:</strong> {{ discipline.cycle_code|default:"—" }}<br>
+                    <strong>Лекции:</strong> {{ discipline.lecture_hours }} ч.<br>
+                    <strong>Практика:</strong> {{ discipline.practice_hours }} ч.<br>
+                    <strong>Лабораторные:</strong> {{ discipline.lab_hours }} ч.<br>
+                    {% if discipline.assessment_type %}
+                    <strong>Форма аттестации:</strong> 
+                    {% if discipline.assessment_type == 'Exam' %}Экзамен{% endif %}
+                    {% if discipline.assessment_type == 'Credit' %}Зачёт{% endif %}
+                    {% if discipline.assessment_type == 'Coursework' %}Курсовая{% endif %}
+                    {% if discipline.assessment_type == 'Differentiated credit' %}Диф. зачёт{% endif %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:discipline_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

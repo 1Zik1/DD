@@ -1,0 +1,96 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block header %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>{{ title }}</span>
+        <a href="{% url 'portfolio:teaching_load_list' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-times"></i> Отмена
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Дисциплина *</label>
+                        {{ form.discipline }}
+                        {% if form.discipline.errors %}
+                            <div class="text-danger">{{ form.discipline.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Группа *</label>
+                        {{ form.group }}
+                        {% if form.group.errors %}
+                            <div class="text-danger">{{ form.group.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Год *</label>
+                        {{ form.year }}
+                        {% if form.year.errors %}
+                            <div class="text-danger">{{ form.year.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Семестр *</label>
+                        {{ form.semester }}
+                        {% if form.semester.errors %}
+                            <div class="text-danger">{{ form.semester.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Часы *</label>
+                        {{ form.hours }}
+                        {% if form.hours.errors %}
+                            <div class="text-danger">{{ form.hours.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Тип занятия *</label>
+                        {{ form.lesson_type }}
+                        {% if form.lesson_type.errors %}
+                            <div class="text-danger">{{ form.lesson_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Форма обучения *</label>
+                        {{ form.study_form }}
+                        {% if form.study_form.errors %}
+                            <div class="text-danger">{{ form.study_form.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:teaching_load_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ button_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'portfolio/base.html' %}
+
+{% block title %}Подтверждение выхода{% endblock %}
+{% block header %}Подтверждение выхода{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <p>Вы уверены, что хотите выйти из системы?</p>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <a href="{% url 'portfolio:home' %}" class="btn btn-secondary">Отмена</a>
+            <button type="submit" class="btn btn-danger">Выйти</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

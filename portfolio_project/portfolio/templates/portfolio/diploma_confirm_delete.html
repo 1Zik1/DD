@@ -1,0 +1,40 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить дипломную работу{% endblock %}
+{% block header %}Удалить дипломную работу{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить эту дипломную работу?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ diploma.topic }}</h5>
+                <p class="card-text">
+                    <strong>Студент:</strong> {{ diploma.student.last_name }} {{ diploma.student.first_name }} {{ diploma.student.middle_name|default:"" }}<br>
+                    <strong>Год:</strong> {{ diploma.year|default:"—" }}<br>
+                    {% if diploma.grade %}
+                    <strong>Оценка:</strong> <span class="badge bg-primary">{{ diploma.grade }}</span><br>
+                    {% endif %}
+                    {% if diploma.defense_date %}
+                    <strong>Дата защиты:</strong> {{ diploma.defense_date|date:"d.m.Y" }}<br>
+                    {% endif %}
+                    {% if diploma.abstract %}
+                    <strong>Аннотация:</strong> {{ diploma.abstract|truncatewords:20 }}<br>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:diploma_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

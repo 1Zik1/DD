@@ -1,0 +1,63 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Курсовые работы{% endblock %}
+{% block header %}Курсовые работы{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Список курсовых работ</h2>
+    <a href="{% url 'portfolio:coursework_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Добавить курсовую работу
+    </a>
+</div>
+
+{% if courseworks %}
+<table class="table table-striped table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Студент</th>
+            <th>Дисциплина</th>
+            <th>Тема</th>
+            <th>Год</th>
+            <th>Оценка</th>
+            <th>Дата сдачи</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for coursework in courseworks %}
+        <tr>
+            <td>{{ coursework.student.last_name }} {{ coursework.student.first_name }} {{ coursework.student.middle_name|default:"" }}</td>
+            <td>{{ coursework.discipline.name }}</td>
+            <td>{{ coursework.topic }}</td>
+            <td>{{ coursework.year|default:"—" }}</td>
+            <td>
+                {% if coursework.grade %}
+                    <span class="badge bg-primary">{{ coursework.grade }}</span>
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td>{{ coursework.submission_date|date:"d.m.Y"|default:"—" }}</td>
+            <td>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'portfolio:coursework_edit' coursework.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'portfolio:coursework_delete' coursework.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> У вас пока нет курсовых работ
+</div>
+{% endif %}
+
+<div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+    <a href="{% url 'portfolio:home' %}" class="btn btn-secondary">Назад на главную</a>
+</div>
+{% endblock %}

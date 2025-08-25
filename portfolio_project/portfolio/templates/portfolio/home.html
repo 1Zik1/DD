@@ -1,0 +1,30 @@
+{% extends 'portfolio/base.html' %}
+
+{% block title %}Главная{% endblock %}
+{% block header %}Добро пожаловать в портфолио{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="card-title">Система учёта педагогической деятельности</h3>
+        <p class="text-muted">
+            Это система для подготовки портфолио педагога к аттестации в Министерстве науки и высшего образования РФ.
+        </p>
+        <p class="text-muted">
+            Используйте меню слева для навигации по разделам.
+        </p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title">Что можно делать:</h3>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><i class="fas fa-check-circle text-success"></i> Заполнять данные о себе</li>
+            <li class="list-group-item"><i class="fas fa-check-circle text-success"></i> Добавлять образование, опыт, курсы</li>
+            <li class="list-group-item"><i class="fas fa-check-circle text-success"></i> Прикреплять сертификаты и документы</li>
+            <li class="list-group-item"><i class="fas fa-check-circle text-success"></i> Формировать отчёты для аттестации</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

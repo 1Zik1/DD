@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Портфолио педагога{% endblock %}</title>
+    <!-- Подключение Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Подключение Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Базовые стили для HTML и BODY */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Основные стили страницы */
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Контейнер для всего содержимого */
+        .container-fluid {
+            flex: 1;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        /* Стили для строки с меню и контентом */
+        .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        /* Стили для бокового меню (sidebar) */
+        .sidebar {
+            min-height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #dee2e6;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            position: fixed;
+            width: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            will-change: transform; /* Для аппаратного ускорения анимации */
+        }
+
+        /* Заголовок в меню */
+        .sidebar-header {
+            padding: 1rem 0;
+            text-align: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Стили для пунктов меню */
+        .menu-item {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-left: 3px solid transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Стили при наведении на пункт меню */
+        .menu-item:hover {
+            background-color: #f0f0f0;
+            color: #007bff;
+            border-left: 3px solid #007bff;
+            transform: translateX(2px); /* Плавное смещение при наведении */
+        }
+
+        /* Контейнер для пунктов меню с подменю */
+        .menu-item-container {
+            position: relative;
+        }
+
+        /* СТИЛИ ДЛЯ ПОДМЕНЮ - ОСНОВНОЙ БЛОК ДЛЯ НАСТРОЙКИ ПЛАВНОСТИ */
+        .dropdown-content {
+            padding-left: 0;
+            margin-top: 0;
+            background-color: white;
+            border-left: 3px solid #007bff;
+            border-radius: 0 8px 8px 0;
+            overflow: hidden;
+            opacity: 0;
+            max-height: 0;
+            transition: 
+                max-height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                opacity 0.7s ease-out;
+            transform-origin: top;
+        }
+
+        /* Стили для открытого подменю */
+        .dropdown:hover > .dropdown-content {
+            opacity: 1;
+            max-height: 500px; /* Достаточно для большинства подменю */
+        }
+
+        /* Стили для пунктов внутри подменю */
+        .dropdown-content .menu-item {
+            padding: 0.4rem 1.5rem;
+            border-left: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Стили при наведении на пункт внутри подменю */
+        .dropdown-content .menu-item:hover {
+            background-color: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        /* Стили для стрелки в пунктах меню с подменю */
+        .menu-item.has-submenu::after {
+            content: "▶";
+            float: right;
+            margin-left: 0.5rem;
+            font-size: 0.8rem;
+            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Стили для стрелки при открытом подменю */
+        .dropdown:hover > .has-submenu::after {
+            transform: rotate(90deg);
+        }
+
+        /* Стили для основного контента */
+        main {
+            margin-left: 250px;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        /* Отступы для контента */
+        .content {
+            padding: 2rem;
+            margin-top: 0;
+        }
+
+        /* Стили для карточек */
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Стили при наведении на карточку */
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Стили для заголовков карточек */
+        .card-title {
+            font-weight: 600;
+            color: #007bff;
+        }
+
+        /* Стили для основных кнопок */
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            transition: all 0.3s ease;
+        }
+
+        /* Стили при наведении на кнопку */
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Стиль для страницы входа */
+        .login-page main {
+            margin-left: 0;
+        }
+        
+       
+        /*Фото в меню*/
+        .menu-profile-photo {
+            width: 180px; /*размер фото в меню*/
+            height: 180px;
+            object-fit: cover;
+            border: 3px solid #007bff;
+            margin: 0 auto 0.5rem auto;
+            display: block;
+            border-radius: 50%;
+        }
+
+        .menu-profile-placeholder {
+            font-size: 3rem;
+            color: #007bff;
+            margin: 0 auto 0.5rem auto;
+            display: block;
+            text-align: center;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Меню -->
+            {% if not request.path == '/accounts/login/' %}
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="sidebar-header">
+                    <div class="d-flex flex-column align-items-center">
+                        <div style="font-weight: bold; font-size: 1.5rem; color: #007bff; margin-bottom: 0.5rem;">Портфолио педагога</div>
+                        {% if user.is_authenticated and user.teacher.photo %}
+                        <img src="{{ user.teacher.photo.url }}" alt="Фото профиля" class="menu-profile-photo">
+                        {% elif user.is_authenticated %}
+                        <i class="fas fa-user-circle menu-profile-placeholder"></i>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Блок авторизации -->
+                <div style="padding: 0 1rem 1rem 1rem; border-bottom: 1px solid #eee;">
+                    {% if user.is_authenticated %}
+                        <small>Вы вошли как: <strong>{{ user.get_full_name|default:user.username }}</strong></small>
+                        <br>
+                        <a href="{% url 'portfolio:logout_confirm' %}" class="menu-item" style="padding: 0.25rem 0; font-size: 0.9rem;">
+                            <i class="fas fa-sign-out-alt"></i> Выход
+                        </a>
+                    {% else %}
+                        <small>Пожалуйста, войдите</small>
+                        <br>
+                        <a href="{% url 'login' %}" class="menu-item" style="padding: 0.25rem 0; font-size: 0.9rem;">
+                            <i class="fas fa-sign-in-alt"></i> Вход
+                        </a>
+                    {% endif %}
+                </div>
+            
+                {% include 'portfolio/menu.html' %}
+            </nav>
+            {% endif %}
+
+            <!-- Контент -->
+            <main class="{% if request.path == '/accounts/login/' %}col-12 login-page{% else %}col-md-9 ms-sm-auto col-lg-10 px-md-4{% endif %}">
+                <div class="content">
+                    <h1 class="mb-4">{% block header %}{% endblock %}</h1>
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Подключение jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Подключение Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Добавляем небольшую задержку перед закрытием для предотвращения случайных закрытий
+            let timeout;
+            $('.dropdown').hover(
+                function() {
+                    clearTimeout(timeout);
+                    $(this).addClass('active');
+                },
+                function() {
+                    const $this = $(this);
+                    timeout = setTimeout(function() {
+                        $this.removeClass('active');
+                    }, 150); // Задержка 150ms перед закрытием
+                }
+            );
+        });
+    </script>
+</body>
+</html>

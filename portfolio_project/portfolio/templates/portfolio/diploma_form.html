@@ -1,0 +1,84 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block header %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>{{ title }}</span>
+        <a href="{% url 'portfolio:diploma_list' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-times"></i> Отмена
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <div class="form-group">
+                    <label class="form-label">Студент *</label>
+                    {{ form.student }}
+                    {% if form.student.errors %}
+                        <div class="text-danger">{{ form.student.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-group">
+                    <label class="form-label">Тема *</label>
+                    {{ form.topic }}
+                    {% if form.topic.errors %}
+                        <div class="text-danger">{{ form.topic.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Год *</label>
+                        {{ form.year }}
+                        {% if form.year.errors %}
+                            <div class="text-danger">{{ form.year.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Оценка</label>
+                        {{ form.grade }}
+                        {% if form.grade.errors %}
+                            <div class="text-danger">{{ form.grade.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Дата защиты</label>
+                        {{ form.defense_date }}
+                        {% if form.defense_date.errors %}
+                            <div class="text-danger">{{ form.defense_date.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-group">
+                    <label class="form-label">Аннотация</label>
+                    {{ form.abstract }}
+                    {% if form.abstract.errors %}
+                        <div class="text-danger">{{ form.abstract.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:diploma_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> {{ button_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

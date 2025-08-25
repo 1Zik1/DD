@@ -1,0 +1,69 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Учебная нагрузка{% endblock %}
+{% block header %}Учебная нагрузка{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Список учебной нагрузки</h2>
+    <a href="{% url 'portfolio:teaching_load_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Добавить нагрузку
+    </a>
+</div>
+
+{% if teaching_loads %}
+<table class="table table-striped table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Дисциплина</th>
+            <th>Группа</th>
+            <th>Семестр</th>
+            <th>Год</th>
+            <th>Тип занятия</th>
+            <th>Часы</th>
+            <th>Форма обучения</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for load in teaching_loads %}
+        <tr>
+            <td>{{ load.discipline.name }}</td>
+            <td>{{ load.group.number }}</td>
+            <td>{{ load.semester }}</td>
+            <td>{{ load.year }}</td>
+            <td>
+                {% if load.lesson_type == 'Lecture' %}Лекция{% endif %}
+                {% if load.lesson_type == 'Practice' %}Практика{% endif %}
+                {% if load.lesson_type == 'Lab' %}Лабораторная{% endif %}
+                {% if load.lesson_type == 'Consultation' %}Консультация{% endif %}
+                {% if load.lesson_type == 'Exam' %}Экзамен{% endif %}
+            </td>
+            <td>{{ load.hours }}</td>
+            <td>
+                {% if load.study_form == 'Full-time' %}Очная{% endif %}
+                {% if load.study_form == 'Part-time' %}Заочная{% endif %}
+                {% if load.study_form == 'Mixed' %}Очно-заочная{% endif %}
+            </td>
+            <td>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'portfolio:teaching_load_edit' load.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'portfolio:teaching_load_delete' load.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> У вас пока нет учебной нагрузки
+</div>
+{% endif %}
+
+<div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+    <a href="{% url 'portfolio:home' %}" class="btn btn-secondary">Назад на главную</a>
+</div>
+{% endblock %}

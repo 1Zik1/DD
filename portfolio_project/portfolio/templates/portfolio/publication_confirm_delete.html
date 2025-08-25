@@ -1,0 +1,48 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить публикацию{% endblock %}
+{% block header %}Удалить публикацию{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить эту публикацию?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ publication.title }}</h5>
+                <p class="card-text">
+                    <strong>Тип:</strong>
+                    {% if publication.type == 'Article' %}Статья{% endif %}
+                    {% if publication.type == 'Textbook' %}Учебное пособие{% endif %}
+                    {% if publication.type == 'Monograph' %}Монография{% endif %}
+                    {% if publication.type == 'Manual' %}Методичка{% endif %}
+                    {% if publication.type == 'Online course' %}Онлайн-курс{% endif %}
+                    <br>
+                    {% if publication.publisher %}
+                    <strong>Издательство:</strong> {{ publication.publisher }}<br>
+                    {% endif %}
+                    {% if publication.year %}
+                    <strong>Год:</strong> {{ publication.year }}<br>
+                    {% endif %}
+                    {% if publication.issn_isbn %}
+                    <strong>ISSN/ISBN:</strong> {{ publication.issn_isbn }}<br>
+                    {% endif %}
+                    {% if publication.url %}
+                    <strong>Ссылка:</strong> <a href="{{ publication.url }}" target="_blank">{{ publication.url }}</a><br>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:publication_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

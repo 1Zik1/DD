@@ -1,0 +1,78 @@
+<ul class="list-unstyled">
+    <!-- Пункт меню "Главная" -->
+    <li class="menu-item-container">
+        <a href="{% url 'portfolio:home' %}" class="menu-item {% if request.path == '/' %}active{% endif %}">
+            <i class="fas fa-home"></i> Главная
+        </a>
+    </li>
+    
+    <!-- Пункт меню "Личные данные" с подменю -->
+    <li class="menu-item-container dropdown">
+        <a href="javascript:void(0)" class="menu-item has-submenu">
+            <i class="fas fa-user"></i> Личные данные
+        </a>
+        <div class="dropdown-content">
+            <!-- ИСПРАВЛЕНО: добавлен правильный URL для профиля -->
+            <a href="{% url 'portfolio:profile' %}" class="menu-item">Мой профиль</a>
+        </div>
+    </li>
+    
+    <!-- Пункт меню "Профессиональный путь" с подменю -->
+    <li class="menu-item-container dropdown">
+        <a href="javascript:void(0)" class="menu-item has-submenu">
+            <i class="fas fa-briefcase"></i> Профессиональный путь
+        </a>
+        <div class="dropdown-content">
+            <a href="{% url 'portfolio:education_list' %}" class="menu-item">Образование</a>
+            <a href="{% url 'portfolio:experience_list' %}" class="menu-item">Опыт работы</a>
+            <a href="{% url 'portfolio:qualification_list' %}" class="menu-item">Квалификация</a>
+            <a href="{% url 'portfolio:award_list' %}" class="menu-item">Награды</a>
+        </div>
+    </li>
+    
+    <!-- Пункт меню "Учебная деятельность" с подменю -->
+    <li class="menu-item-container dropdown">
+        <a href="javascript:void(0)" class="menu-item has-submenu">
+            <i class="fas fa-chalkboard-teacher"></i> Учебная деятельность
+        </a>
+        <div class="dropdown-content">
+            <a href="{% url 'portfolio:my_disciplines' %}" class="menu-item">Преподаваемые дисциплины</a>
+            <a href="{% url 'portfolio:teaching_load_list' %}" class="menu-item">Учебная нагрузка</a>
+            <a href="{% url 'portfolio:group_list' %}" class="menu-item">Группы студентов</a>
+            <a href="{% url 'portfolio:discipline_list' %}" class="menu-item">Каталог дисциплин</a>
+            <a href="{% url 'portfolio:grades_list' %}" class="menu-item">Успеваемость студентов</a>
+        </div>
+    </li>
+    
+    <!-- Пункт меню "Научно-методическая работа" с подменю -->
+    <li class="menu-item-container dropdown">
+        <a href="javascript:void(0)" class="menu-item has-submenu">
+            <i class="fas fa-book"></i> Научно-методическая работа
+        </a>
+        <div class="dropdown-content">
+            <a href="{% url 'portfolio:publication_list' %}" class="menu-item">Публикации</a>
+            <a href="{% url 'portfolio:coursework_list' %}" class="menu-item">Курсовые работы</a>
+            <a href="{% url 'portfolio:diploma_list' %}" class="menu-item">Дипломные работы</a>
+        </div>
+    </li>
+    
+    <!-- Пункт меню "Работа со студентами" с подменю -->
+    <li class="menu-item-container dropdown">
+        <a href="javascript:void(0)" class="menu-item has-submenu">
+            <i class="fas fa-graduation-cap"></i> Работа со студентами
+        </a>
+        <div class="dropdown-content">
+            <a href="{% url 'portfolio:olympiad_list' %}" class="menu-item">Олимпиады</a>
+        </div>
+    </li>
+    
+    <!-- Пункт меню "Файлы" с подменю -->
+    <li class="menu-item-container dropdown">
+        <a href="javascript:void(0)" class="menu-item has-submenu">
+            <i class="fas fa-file"></i> Файлы
+        </a>
+        <div class="dropdown-content">
+            <a href="#" class="menu-item">Все файлы</a>
+        </div>
+    </li>
+</ul>

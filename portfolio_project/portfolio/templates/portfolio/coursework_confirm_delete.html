@@ -1,0 +1,38 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить курсовую работу{% endblock %}
+{% block header %}Удалить курсовую работу{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить эту курсовую работу?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ coursework.topic }}</h5>
+                <p class="card-text">
+                    <strong>Студент:</strong> {{ coursework.student.last_name }} {{ coursework.student.first_name }} {{ coursework.student.middle_name|default:"" }}<br>
+                    <strong>Дисциплина:</strong> {{ coursework.discipline.name }}<br>
+                    <strong>Год:</strong> {{ coursework.year|default:"—" }}<br>
+                    {% if coursework.grade %}
+                    <strong>Оценка:</strong> <span class="badge bg-primary">{{ coursework.grade }}</span><br>
+                    {% endif %}
+                    {% if coursework.submission_date %}
+                    <strong>Дата сдачи:</strong> {{ coursework.submission_date|date:"d.m.Y" }}<br>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:coursework_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

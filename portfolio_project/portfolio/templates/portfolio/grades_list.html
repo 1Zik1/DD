@@ -1,0 +1,55 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Успеваемость студентов{% endblock %}
+{% block header %}Успеваемость студентов{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Оценки студентов</h2>
+    <div>
+        <button class="btn btn-primary" disabled>
+            <i class="fas fa-plus"></i> Добавить оценку
+        </button>
+    </div>
+</div>
+
+{% if grades %}
+<table class="table table-striped table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Студент</th>
+            <th>Группа</th>
+            <th>Дисциплина</th>
+            <th>Оценка</th>
+            <th>Дата</th>
+            <th>Тип контроля</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for grade in grades %}
+        <tr>
+            <td>{{ grade.student.last_name }} {{ grade.student.first_name }}</td>
+            <td>{{ grade.student.group.number }}</td>
+            <td>{{ grade.discipline.name }}</td>
+            <td>
+                <span class="badge bg-primary">{{ grade.grade }}</span>
+                {% if grade.score %}({{ grade.score }} баллов){% endif %}
+            </td>
+            <td>{{ grade.date|date:"d.m.Y" }}</td>
+            <td>
+                {% if grade.control_type == 'Current' %}Текущий{% endif %}
+                {% if grade.control_type == 'Interim' %}Рубежный{% endif %}
+                {% if grade.control_type == 'Final' %}Итоговый{% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> У вас пока нет записей об оценках студентов
+</div>
+{% endif %}
+
+<div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+    <a href="{% url 'portfolio:home' %}" class="btn btn-secondary">Назад на главную</a>
+</div>
+{% endblock %}

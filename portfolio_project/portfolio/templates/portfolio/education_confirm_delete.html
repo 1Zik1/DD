@@ -1,0 +1,38 @@
+{% extends 'portfolio/base.html' %}
+
+{% block title %}Удалить образование{% endblock %}
+{% block header %}Удалить образование{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить запись об образовании?</p>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ education.institution }}</h5>
+                <p class="card-text">
+                    <strong>Специальность:</strong> {{ education.specialization }}<br>
+                    <strong>Степень:</strong> {{ education.degree }}<br>
+                    <strong>Период:</strong> 
+                    {% if education.start_date %}{{ education.start_date|date:"d.m.Y" }}{% endif %}
+                    {% if education.end_date %} - {{ education.end_date|date:"d.m.Y" }}{% else %} - Наст. время{% endif %}
+                </p>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:education_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
