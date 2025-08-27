@@ -2,8 +2,9 @@ import re
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from .models import Award, Coursework, Diploma, Education, Experience, Olympiad, Publication, Qualification, Student, Teacher, TeachingLoad, Discipline, Group
+from .models import File, Teacher, Education, Experience, Qualification, Award, KnowledgeExchange, Discipline, Group, TeachingLoad, Student, Grade, Publication, Diploma, Coursework, Olympiad
 from datetime import date
+from django.contrib.contenttypes.models import ContentType
 
 class TeacherForm(forms.ModelForm):
     class Meta:
@@ -346,3 +347,179 @@ class OlympiadForm(forms.ModelForm):
         place = self.cleaned_data.get('place')
         # Валидация 
         return place
+    
+# Новые формы для выбора объекта
+class ObjectChoiceField(forms.ModelChoiceField):
+    """Поле выбора объекта с кастомным отображением"""
+    def label_from_instance(self, obj):
+        # Отображаемое имя будет зависеть от типа объекта
+        if hasattr(obj, '__str__'):
+            return str(obj)
+        return f"{obj._meta.verbose_name} #{obj.pk}"
+
+class FileForm(forms.ModelForm):
+    # Явно определяем поля, которые не являются обычными полями модели или требуют специальной настройки
+    
+    # Поле для выбора типа объекта
+    content_type = forms.ModelChoiceField(
+        queryset=ContentType.objects.filter(
+            model__in=[
+                'teacher', 'education', 'experience', 'qualification', 'award',
+                'knowledgeexchange', 'discipline', 'group', 'teachingload',
+                'student', 'grade', 'publication', 'diploma', 'coursework', 'olympiad'
+            ]
+        ),
+        label='Тип объекта',
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_content_type'}),
+        empty_label="Выберите тип объекта"
+    )
+
+    # Поле для выбора конкретного объекта
+    # Используем ModelChoiceField для автоматической обработки queryset и label_from_instance
+    object_id = forms.ModelChoiceField(
+        queryset=None, # Будет установлено динамически в __init__
+        label='Объект',
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_object_id'}),
+        empty_label="Выберите объект",
+        required=True # Сделаем обязательным, так как без объекта файл не прикрепить
+    )
+    
+    description = forms.CharField(
+        label='Описание (необязательно)',
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
+    )
+
+    class Meta:
+        model = File
+        fields = ['file_path'] # Указываем только те поля, которые существуют в модели
+        widgets = {
+            'file_path': forms.FileInput(attrs={
+                'accept': '.pdf,.jpg,.jpeg,.png,.doc,.docx',
+                'class': 'form-control'
+            }),
+        }
+        labels = {
+            'file_path': 'Выберите файл',
+        }
+
+    def __init__(self, *args, **kwargs):
+        # Получаем возможные данные из view (например, teacher)
+        # Это позволяет фильтровать объекты по пользователю
+        self.teacher = kwargs.pop('teacher', None)
+        super().__init__(*args, **kwargs)
+
+        # Изначально делаем queryset пустым для object_id
+        self.fields['object_id'].queryset = self.get_initial_object_queryset()
+        
+        # Если форма редактируется (есть instance) или данные переданы,
+        # заполняем поле object_id соответствующими объектами
+        if 'content_type' in self.data or (self.instance and self.instance.pk and self.instance.content_type):
+            
+            # Определяем content_type: из данных формы, из instance или None
+            content_type = None
+            if 'content_type' in self.data:
+                 try:
+                     content_type_id = int(self.data.get('content_type'))
+                     content_type = ContentType.objects.get_for_id(content_type_id)
+                 except (ValueError, TypeError, ContentType.DoesNotExist):
+                     content_type = None
+            elif self.instance and self.instance.pk and self.instance.content_type:
+                 content_type = self.instance.content_type
+            
+            # Если content_type определен, обновляем queryset для object_id
+            if content_type:
+                object_queryset = self.get_objects_for_content_type(content_type)
+                self.fields['object_id'].queryset = object_queryset
+                
+                # Если есть данные, устанавливаем выбранное значение
+                if 'object_id' in self.data:
+                    try:
+                        obj_id = int(self.data['object_id'])
+                        # Устанавливаем initial, чтобы поле отобразило выбранное значение
+                        # ModelChoiceField ожидает объект, а не ID, но можно установить initial
+                        self.fields['object_id'].initial = obj_id
+                    except (ValueError, TypeError):
+                        pass
+                elif self.instance and self.instance.pk and self.instance.object_id:
+                    # При редактировании существующего файла
+                    try:
+                        obj = object_queryset.get(pk=self.instance.object_id)
+                        self.fields['object_id'].initial = obj
+                    except object_queryset.model.DoesNotExist:
+                        pass
+
+    def get_initial_object_queryset(self):
+        """Возвращает пустой queryset для начальной инициализации"""
+        # Можно вернуть queryset любой модели, например, Teacher
+        return Teacher.objects.none() 
+
+    def get_objects_for_content_type(self, content_type):
+        """Возвращает queryset объектов для данного content_type, отфильтрованный по пользователю"""
+        model_class = content_type.model_class()
+        queryset = model_class.objects.all()
+
+        # Фильтрация по текущему педагогу, если это возможно и указан teacher
+        if self.teacher and model_class:
+            if hasattr(model_class, 'teacher'):
+                queryset = queryset.filter(teacher=self.teacher)
+            elif model_class == Teacher: # Если прикрепляем файл к самому педагогу
+                queryset = queryset.filter(pk=self.teacher.pk)
+            # Можно добавить фильтрацию и для других моделей,
+            # например, для Student по группе педагога и т.д.
+            # elif model_class == Student:
+            #     queryset = queryset.filter(group__teaching_loads__teacher=self.teacher).distinct()
+            # elif model_class == Group:
+            #     queryset = queryset.filter(teaching_loads__teacher=self.teacher).distinct()
+            # elif model_class == Discipline:
+            #     queryset = queryset.filter(teaching_loads__teacher=self.teacher).distinct()
+
+        return queryset
+
+    def clean_file_path(self):
+        file = self.cleaned_data.get('file_path')
+        if file:
+            max_size = 10 * 1024 * 1024 # 10MB
+            if file.size > max_size:
+                raise forms.ValidationError(f'Размер файла не должен превышать {max_size / (1024*1024):.1f} МБ.')
+        return file
+
+    def clean(self):
+        cleaned_data = super().clean()
+        content_type = cleaned_data.get('content_type')
+        object_instance = cleaned_data.get('object_id') # ModelChoiceField возвращает объект, не ID
+
+        if content_type and not object_instance:
+            raise forms.ValidationError("Пожалуйста, выберите объект.")
+
+        # Сохраняем object_id и content_object для использования в save()
+        if object_instance:
+            cleaned_data['object_id_value'] = object_instance.pk
+            cleaned_data['content_object'] = object_instance
+        else:
+             cleaned_data['object_id_value'] = None
+             cleaned_data['content_object'] = None
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        
+        # Устанавливаем значения для GenericForeignKey
+        # Используем данные, подготовленные в clean()
+        content_type = self.cleaned_data.get('content_type')
+        object_instance = self.cleaned_data.get('content_object')
+        
+        if content_type:
+            instance.content_type = content_type
+        if object_instance:
+            instance.object_id = object_instance.pk
+            # instance.content_object будет установлено автоматически GenericForeignKey
+        
+        # Устанавливаем описание, если оно пустое
+        if not instance.description:
+             instance.description = self.cleaned_data.get('description', '')
+
+        if commit:
+            instance.save()
+        return instance

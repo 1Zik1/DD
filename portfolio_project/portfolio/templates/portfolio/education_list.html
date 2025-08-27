@@ -20,6 +20,7 @@
             <th>Степень</th>
             <th>Период</th>
             <th>Тип</th>
+            <th>Файлы</th>
             <th>Действия</th>
         </tr>
     </thead>
@@ -37,6 +38,37 @@
                 {% if education.education_type %}
                     {% if education.education_type == 'Basic' %}Основное{% endif %}
                     {% if education.education_type == 'Additional' %}Дополнительное{% endif %}
+                {% endif %}
+            </td>
+            <td>
+                <!-- Отображаем файлы -->
+                {% if education.files.all %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for file in education.files.all %}
+                            <!-- Проверяем, является ли файл изображением -->
+                            <!-- Теперь image_file_types доступна из контекста -->
+                            {% if file.file_type in image_file_types %}
+                                <!-- Миниатюра изображения -->
+                                <!-- Убираем href="#" чтобы не было изменения URL -->
+                                <a 
+                                    href="javascript:void(0);" 
+                                    class="image-preview" 
+                                    data-src="{{ file.file_path.url }}" 
+                                    data-title="{{ file.file_name }}" 
+                                    data-description="{{ file.description|default:'' }}"
+                                >
+                                    <img src="{{ file.file_path.url }}" alt="{{ file.file_name }}" class="img-thumbnail" style="max-width: 80px; max-height: 80px;">
+                                </a>
+                            {% else %}
+                                <!-- Ссылка на другие файлы -->
+                                <a href="{{ file.file_path.url }}" target="_blank" class="text-decoration-none">
+                                    <i class="fas fa-file"></i> {{ file.file_name }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <span class="text-muted">—</span>
                 {% endif %}
             </td>
             <td>
@@ -62,4 +94,66 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
     <a href="{% url 'portfolio:home' %}" class="btn btn-secondary">Назад на главную</a>
 </div>
+
+<!-- Модальное окно для просмотра изображений -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="Просмотр изображения" class="img-fluid">
+                <p id="modalDescription" class="mt-2 text-muted"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript для обработки кликов и открытия модального окна -->
+<!-- Помещаем его непосредственно в шаблон, вне блоков -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Получаем все ссылки для предварительного просмотра изображений
+    const imagePreviews = document.querySelectorAll('.image-preview');
+    
+    // Проверка, найдены ли элементы (для отладки)
+    console.log("Найдено элементов .image-preview:", imagePreviews.length);
+    
+    // Обработчик клика по миниатюре
+    imagePreviews.forEach(link => {
+        link.addEventListener('click', function(e) {
+            console.log("Клик по изображению"); // Для отладки
+            // Предотвращаем стандартное поведение ссылки
+            e.preventDefault();
+            
+            // Получаем данные из атрибутов
+            const src = this.getAttribute('data-src');
+            const title = this.getAttribute('data-title');
+            const description = this.getAttribute('data-description');
+            
+            console.log("Данные изображения:", {src, title, description}); // Для отладки
+            
+            // Заполняем модальное окно
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModalLabel').textContent = title;
+            document.getElementById('modalDescription').textContent = description || '';
+            
+            // Открываем модальное окно
+            // Убедитесь, что Bootstrap JS загружен
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+                modal.show();
+                console.log("Модальное окно открыто"); // Для отладки
+            } else {
+                console.error("Bootstrap JS не загружен или bootstrap.Modal не доступен");
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

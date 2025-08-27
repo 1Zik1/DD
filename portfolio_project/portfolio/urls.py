@@ -86,4 +86,12 @@ urlpatterns = [
     path('olympiads/create/', views.olympiad_create, name='olympiad_create'),
     path('olympiads/<int:pk>/edit/', views.olympiad_edit, name='olympiad_edit'),
     path('olympiads/<int:pk>/delete/', views.olympiad_delete, name='olympiad_delete'),
+
+    # Файлы
+    path('files/', views.file_list, name='file_list'),
+    path('files/upload/', views.file_upload, name='file_upload'),
+    path('files/<int:pk>/delete/', views.file_delete, name='file_delete'),
+
+    # URL для AJAX запроса на получение объектов
+    path('ajax/get-objects-for-content-type/', views.get_objects_for_content_type, name='get_objects_for_content_type'),
 ]

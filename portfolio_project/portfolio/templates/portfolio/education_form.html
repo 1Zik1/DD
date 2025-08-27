@@ -73,6 +73,26 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Начало новой секции для отображения прикрепленных файлов -->
+            {% if object and object.files.all %}
+            <hr>
+            <h5>Прикрепленные файлы:</h5>
+            <ul class="list-unstyled">
+                {% for file in object.files.all %}
+                <li class="mb-1">
+                    <a href="{{ file.file_path.url }}" target="_blank">
+                        <i class="fas fa-file"></i> {{ file.file_name }}
+                    </a>
+                    {% if file.description %}<small class="text-muted"> - {{ file.description }}</small>{% endif %}
+                    <small class="text-muted">({{ file.file_type }}, {{ file.file_size|filesizeformat }})</small>
+                    <!-- Ссылка для удаления файла (если нужно) -->
+                    <!-- <a href="{% url 'portfolio:file_delete' file.pk %}" class="btn btn-sm btn-outline-danger ms-2">Удалить</a> -->
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <!-- Конец новой секции для отображения прикрепленных файлов -->
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                 <a href="{% url 'portfolio:education_list' %}" class="btn btn-secondary">Отмена</a>

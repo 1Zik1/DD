@@ -1,4 +1,5 @@
 from django.forms import IntegerField
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import *
@@ -14,6 +15,13 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from datetime import date
+import os
+from .forms import FileForm
+from django.contrib import messages
+import logging
+from django.views.decorators.http import require_POST
+import json
+logger = logging.getLogger(__name__)
 
 @login_required
 @cache_page(60 * 15)  # Кэшировать на 15 минут
@@ -123,11 +131,15 @@ def education_list(request):
             first_name=request.user.first_name or "Имя",
             birth_date="1990-01-01"
         )
-    
     educations = teacher.educations.all().order_by('-end_date', '-start_date')
+    
+    # Определяем список типов файлов, которые являются изображениями
+    image_file_types = ['JPG', 'JPEG', 'PNG'] # <-- Добавлено
+    
     return render(request, 'portfolio/education_list.html', {
         'teacher': teacher,
-        'educations': educations
+        'educations': educations,
+        'image_file_types': image_file_types # <-- Передаём в контекст
     })
 
 @login_required
@@ -1161,3 +1173,204 @@ def logout_confirm(request):
     Страница подтверждения выхода.
     """
     return render(request, 'portfolio/logout_confirm.html')
+
+# === ФАЙЛЫ ===
+@login_required
+def file_list(request):
+    """Список всех файлов пользователя"""
+    try:
+        teacher = request.user.teacher
+    except Teacher.DoesNotExist:
+        teacher = Teacher.objects.create(
+            user=request.user,
+            last_name=request.user.last_name or "Фамилия",
+            first_name=request.user.first_name or "Имя",
+            birth_date="1990-01-01"
+        )
+    
+    # Получаем все файлы, связанные с объектами этого педагога
+    files = File.objects.filter(
+        content_type__in=ContentType.objects.get_for_models(
+            Teacher, Education, Experience, Qualification, Award,
+            KnowledgeExchange, Discipline, Group, TeachingLoad,
+            Student, Grade, Publication, Diploma, Coursework, Olympiad
+        ).values()
+    ).select_related('content_type')
+    
+    # Фильтруем по объектам педагога
+    teacher_files = []
+    for file in files:
+        try:
+            if hasattr(file.content_object, 'teacher') and file.content_object.teacher == teacher:
+                teacher_files.append(file)
+            elif isinstance(file.content_object, Teacher) and file.content_object == teacher:
+                teacher_files.append(file)
+        except:
+            continue
+    
+    return render(request, 'portfolio/file_list.html', {
+        'files': teacher_files,
+        'teacher': teacher
+    })
+
+import logging
+logger = logging.getLogger(__name__)
+
+@login_required
+@login_required
+def file_upload(request):
+    """Загрузка нового файла"""
+    try:
+        teacher = request.user.teacher
+    except Teacher.DoesNotExist:
+        teacher = Teacher.objects.create(
+            user=request.user,
+            last_name=request.user.last_name or "Фамилия",
+            first_name=request.user.first_name or "Имя",
+            birth_date="1990-01-01"
+        )
+
+    if request.method == 'POST':
+        logger.info("POST data received")
+        # Логирование можно оставить для отладки
+        # for key, value in request.POST.items():
+        #     logger.info(f"POST {key}: {value}")
+        # for key, value in request.FILES.items():
+        #     logger.info(f"FILES {key}: {value.name}, size: {value.size}")
+
+        # Передаем teacher в форму
+        form = FileForm(request.POST, request.FILES, teacher=teacher)
+        logger.info(f"Form is valid: {form.is_valid()}")
+        if form.is_valid():
+            logger.info("Form is valid, saving...")
+            # logger.info(f"Form data: {form.cleaned_data}") # Для отладки
+            try:
+                file_obj = form.save()
+                logger.info(f"File saved successfully with pk: {file_obj.pk}")
+                messages.success(request, 'Файл успешно загружен.')
+                return redirect('portfolio:file_list')
+            except Exception as e:
+                logger.error(f"Error saving file: {e}", exc_info=True)
+                form.add_error(None, f'Произошла ошибка при сохранении файла: {e}')
+        else:
+            logger.error("Form is not valid. Errors: %s", form.errors)
+            # messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
+    else:
+        form = FileForm(teacher=teacher) # Передаем teacher при GET запросе
+
+    return render(request, 'portfolio/file_form.html', {
+        'form': form,
+        'title': 'Загрузить файл',
+        'button_text': 'Загрузить'
+    })
+
+
+@login_required
+def file_delete(request, pk):
+    """Удаление файла"""
+    try:
+        teacher = request.user.teacher
+    except Teacher.DoesNotExist:
+        return redirect('portfolio:profile')
+    
+    file = get_object_or_404(File, pk=pk)
+    
+    # Проверяем, что файл принадлежит педагогу
+    try:
+        if hasattr(file.content_object, 'teacher') and file.content_object.teacher == teacher:
+            pass  # Разрешаем удаление
+        elif isinstance(file.content_object, Teacher) and file.content_object == teacher:
+            pass  # Разрешаем удаление
+        else:
+            return redirect('portfolio:file_list')
+    except:
+        return redirect('portfolio:file_list')
+    
+    if request.method == 'POST':
+        # Удаляем файл с диска
+        if file.file_path and os.path.isfile(file.file_path.path):
+            os.remove(file.file_path.path)
+        file.delete()
+        return redirect('portfolio:file_list')
+    
+    return render(request, 'portfolio/file_confirm_delete.html', {
+        'file': file
+    })
+
+@login_required
+@require_POST
+def get_objects_for_content_type(request):
+    """AJAX view для получения списка объектов по content_type_id"""
+    try:
+        # Получаем данные из тела запроса
+        data = json.loads(request.body)
+        content_type_id = data.get('content_type_id')
+
+        if not content_type_id:
+            return JsonResponse({'error': 'content_type_id is required'}, status=400)
+
+        try:
+            content_type = ContentType.objects.get_for_id(content_type_id)
+        except ContentType.DoesNotExist:
+            return JsonResponse({'error': 'Invalid content_type_id'}, status=400)
+
+        # Получаем queryset для выбранного типа
+        model_class = content_type.model_class()
+        
+        # Начинаем с пустого queryset
+        queryset = model_class.objects.none() 
+
+        try:
+            teacher = request.user.teacher
+            
+            # --- Логика фильтрации объектов в зависимости от типа модели ---
+            if model_class == Teacher:
+                # Педагог может прикреплять файлы только к своему профилю
+                queryset = model_class.objects.filter(pk=teacher.pk)
+            
+            elif hasattr(model_class, 'teacher'):
+                # Для моделей, которые имеют поле 'teacher' (Education, Experience, и т.д.)
+                queryset = model_class.objects.filter(teacher=teacher)
+            
+            elif model_class == Group:
+                # Группы, по которым у педагога есть учебная нагрузка
+                queryset = model_class.objects.filter(teaching_loads__teacher=teacher).distinct()
+            
+            elif model_class == Discipline:
+                # Дисциплины, которые педагог преподает
+                queryset = model_class.objects.filter(teaching_loads__teacher=teacher).distinct()
+            
+            elif model_class == Student:
+                # Студенты групп, по которым у педагога нагрузка
+                queryset = model_class.objects.filter(group__teaching_loads__teacher=teacher).distinct()
+            
+            # Добавьте другие условия фильтрации по мере необходимости
+            # Например, для Grade, Publication и т.д., если нужно ограничить доступ
+            
+            # Если ни одно условие не подошло, queryset останется пустым (model_class.objects.none())
+
+        except Teacher.DoesNotExist:
+            # Если у пользователя нет связанного педагога, возвращаем пустой список
+            pass # queryset уже пустой
+
+        # Формируем список объектов для JSON ответа
+        objects_data = []
+        # Ограничиваем количество объектов для предотвращения перегрузки
+        # Можно добавить пагинацию, если объектов много
+        for obj in queryset[:100]: 
+            # Формируем отображаемое имя
+            # Используем __str__ модели, можно кастомизировать
+            display_name = f"{obj} (ID: {obj.pk})" # Более информативное имя
+            objects_data.append({
+                'id': obj.pk,
+                'display_name': str(display_name) # Убедимся, что это строка
+            })
+
+        return JsonResponse({'objects': objects_data})
+
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON in get_objects_for_content_type request")
+        return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+    except Exception as e:
+        logger.error(f"Error in get_objects_for_content_type: {e}", exc_info=True)
+        return JsonResponse({'error': 'Internal server error'}, status=500)

@@ -1,0 +1,38 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Удалить файл{% endblock %}
+{% block header %}Удалить файл{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        Подтверждение удаления
+    </div>
+    <div class="card-body">
+        <p class="lead">Вы действительно хотите удалить этот файл?</p>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ file.file_name }}</h5>
+                <p class="card-text">
+                    <strong>Тип файла:</strong> {{ file.file_type }}<br>
+                    <strong>Размер:</strong> {{ file.file_size|filesizeformat }}<br>
+                    <strong>Дата загрузки:</strong> {{ file.upload_date|date:"d.m.Y H:i" }}<br>
+                    {% if file.description %}
+                    <strong>Описание:</strong> {{ file.description }}<br>
+                    {% endif %}
+                    {% if file.content_object %}
+                    <strong>Связанный объект:</strong> {{ file.content_object }} ({{ file.content_type.model|capfirst }})
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:file_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

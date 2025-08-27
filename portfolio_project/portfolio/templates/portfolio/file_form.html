@@ -1,0 +1,149 @@
+{% extends 'portfolio/base.html' %}
+{% load static %} <!-- Добавляем для возможного использования static файлов -->
+{% block title %}{{ title }}{% endblock %}
+{% block header %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>{{ title }}</span>
+        <a href="{% url 'portfolio:file_list' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-times"></i> Отмена
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" id="file-upload-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <div class="mb-3">
+                <div class="form-group">
+                    <label class="form-label">{{ form.file_path.label }} *</label>
+                    {{ form.file_path }}
+                    {% if form.file_path.errors %}
+                        <div class="text-danger">{{ form.file_path.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-group">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="text-danger">{{ form.description.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.content_type.label }} *</label>
+                        {{ form.content_type }}
+                        {% if form.content_type.errors %}
+                            <div class="text-danger">{{ form.content_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">{{ form.object_id.label }} *</label>
+                        {{ form.object_id }}
+                        {% if form.object_id.errors %}
+                            <div class="text-danger">{{ form.object_id.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Инструкция:</strong> Выберите тип объекта (например, "Образование"),
+                затем из списка выберите конкретный объект.
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'portfolio:file_list' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> {{ button_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const contentTypeSelect = document.getElementById('id_content_type');
+        const objectIdSelect = document.getElementById('id_object_id');
+        const form = document.getElementById('file-upload-form');
+
+        if (contentTypeSelect && objectIdSelect) {
+            // Функция для обновления списка объектов
+            function updateObjectChoices() {
+                const selectedContentTypeId = contentTypeSelect.value;
+
+                // Очищаем список объектов
+                objectIdSelect.innerHTML = '<option value="">---------</option>';
+
+                if (!selectedContentTypeId) {
+                    objectIdSelect.disabled = true;
+                    return;
+                }
+
+                objectIdSelect.disabled = true; // Блокируем на время загрузки
+
+                // Отправляем AJAX запрос для получения объектов
+                fetch("{% url 'portfolio:get_objects_for_content_type' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                    body: JSON.stringify({
+                        content_type_id: selectedContentTypeId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.objects) {
+                        data.objects.forEach(obj => {
+                            const option = document.createElement('option');
+                            option.value = obj.id;
+                            option.textContent = obj.display_name;
+                            objectIdSelect.appendChild(option);
+                        });
+                        objectIdSelect.disabled = false;
+                    } else if (data.error) {
+                        console.error('Error fetching objects:', data.error);
+                        objectIdSelect.disabled = false; // Разблокируем даже при ошибке
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    objectIdSelect.disabled = false; // Разблокируем даже при ошибке
+                });
+            }
+
+            // Добавляем обработчик события на изменение типа контента
+            contentTypeSelect.addEventListener('change', updateObjectChoices);
+
+            // Если тип контента уже выбран (например, при повторной загрузке страницы с ошибками),
+            // обновляем список объектов
+            if (contentTypeSelect.value) {
+                updateObjectChoices();
+            }
+        }
+    });
+</script>
+
+{% endblock %}

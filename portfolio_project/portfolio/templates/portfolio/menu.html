@@ -71,7 +71,7 @@
             <i class="fas fa-file"></i> Файлы
         </a>
         <div class="dropdown-content">
-            <a href="#" class="menu-item">Все файлы</a>
+            <a href="{% url 'portfolio:file_list' %}" class="menu-item">Все файлы</a>
+            <a href="{% url 'portfolio:file_upload' %}" class="menu-item">Загрузить файл</a>
         </div>
     </li>
-</ul>
