@@ -17,6 +17,7 @@
             <th>Организация</th>
             <th>Дата получения</th>
             <th>Уровень</th>
+            <th>Файлы</th> 
             <th>Действия</th>
         </tr>
     </thead>
@@ -31,6 +32,35 @@
                 {% if award.level == 'Regional' %}Региональная{% endif %}
                 {% if award.level == 'Departmental' %}Ведомственная{% endif %}
                 {% if award.level == 'Other' %}Другая{% endif %}
+            </td>
+            <td>
+                <!-- Отображение файлоа -->
+                {% if award.files.all %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for file in award.files.all %}
+                            <!-- Проверка -->
+                            {% if file.file_type in image_file_types %}
+                                <!-- Миниатюра изображения -->
+                                <a 
+                                    href="#" 
+                                    class="image-preview" 
+                                    data-src="{{ file.file_path.url }}" 
+                                    data-title="{{ file.file_name }}" 
+                                    data-description="{{ file.description|default:'' }}"
+                                >
+                                    <img src="{{ file.file_path.url }}" alt="{{ file.file_name }}" class="img-thumbnail" style="max-width: 80px; max-height: 80px;">
+                                </a>
+                            {% else %}
+                                <!-- Ссылка на другие файлы -->
+                                <a href="{{ file.file_path.url }}" target="_blank" class="text-decoration-none">
+                                    <i class="fas fa-file"></i> {{ file.file_name }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <span class="text-muted">—</span>
+                {% endif %}
             </td>
             <td>
                 <div class="d-flex gap-2">
@@ -55,4 +85,32 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
     <a href="{% url 'portfolio:home' %}" class="btn btn-secondary">Назад на главную</a>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imagePreviews = document.querySelectorAll('.image-preview');
+    
+    // Обработчик клика по миниатюре
+    imagePreviews.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const src = this.getAttribute('data-src');
+            const title = this.getAttribute('data-title');
+            const description = this.getAttribute('data-description');
+            
+            // модальное окно
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModalLabel').textContent = title;
+            document.getElementById('modalDescription').textContent = description || '';
+            
+            // Открытие модального окна
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        });
+    });
+});
+</script>
 {% endblock %}

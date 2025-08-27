@@ -339,9 +339,14 @@ def qualification_list(request):
         )
     
     qualifications = teacher.qualifications.all().order_by('-issue_date')
+    
+    # Определяем список типов файлов, которые являются изображениями
+    image_file_types = ['JPG', 'JPEG', 'PNG'] # <-- Добавлено
+    
     return render(request, 'portfolio/qualification_list.html', {
         'teacher': teacher,
-        'qualifications': qualifications
+        'qualifications': qualifications,
+        'image_file_types': image_file_types # <-- Передаём в контекст
     })
 
 @login_required
@@ -440,9 +445,14 @@ def award_list(request):
         )
     
     awards = teacher.awards.all().order_by('-received_date')
+    
+    # Определяем список типов файлов, которые являются изображениями
+    image_file_types = ['JPG', 'JPEG', 'PNG'] # <-- Добавлено
+    
     return render(request, 'portfolio/award_list.html', {
         'teacher': teacher,
-        'awards': awards
+        'awards': awards,
+        'image_file_types': image_file_types # <-- Передаём в контекст
     })
 
 @login_required
@@ -1037,7 +1047,6 @@ def diploma_edit(request, pk):
     except Teacher.DoesNotExist:
         return redirect('portfolio:profile')
     
-    # проверка, что текущий преподаватель является руководителем
     diploma = get_object_or_404(Diploma, pk=pk, supervisor=teacher)
     
     if request.method == 'POST':
@@ -1062,7 +1071,6 @@ def diploma_delete(request, pk):
     except Teacher.DoesNotExist:
         return redirect('portfolio:profile')
     
-    # проверка, что текущий преподаватель является руководителем
     diploma = get_object_or_404(Diploma, pk=pk, supervisor=teacher)
     
     if request.method == 'POST':
@@ -1129,7 +1137,6 @@ def olympiad_edit(request, pk):
     except Teacher.DoesNotExist:
         return redirect('portfolio:profile')
     
-    # проверка, что текущий преподаватель является подготовившим педагогом
     olympiad = get_object_or_404(Olympiad, pk=pk, teacher=teacher)
     
     if request.method == 'POST':
@@ -1188,7 +1195,6 @@ def file_list(request):
             birth_date="1990-01-01"
         )
     
-    # Получаем все файлы, связанные с объектами этого педагога
     files = File.objects.filter(
         content_type__in=ContentType.objects.get_for_models(
             Teacher, Education, Experience, Qualification, Award,
@@ -1197,7 +1203,6 @@ def file_list(request):
         ).values()
     ).select_related('content_type')
     
-    # Фильтруем по объектам педагога
     teacher_files = []
     for file in files:
         try:
@@ -1232,18 +1237,12 @@ def file_upload(request):
 
     if request.method == 'POST':
         logger.info("POST data received")
-        # Логирование можно оставить для отладки
-        # for key, value in request.POST.items():
-        #     logger.info(f"POST {key}: {value}")
-        # for key, value in request.FILES.items():
-        #     logger.info(f"FILES {key}: {value.name}, size: {value.size}")
+        
 
-        # Передаем teacher в форму
         form = FileForm(request.POST, request.FILES, teacher=teacher)
         logger.info(f"Form is valid: {form.is_valid()}")
         if form.is_valid():
             logger.info("Form is valid, saving...")
-            # logger.info(f"Form data: {form.cleaned_data}") # Для отладки
             try:
                 file_obj = form.save()
                 logger.info(f"File saved successfully with pk: {file_obj.pk}")
@@ -1254,9 +1253,9 @@ def file_upload(request):
                 form.add_error(None, f'Произошла ошибка при сохранении файла: {e}')
         else:
             logger.error("Form is not valid. Errors: %s", form.errors)
-            # messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
     else:
-        form = FileForm(teacher=teacher) # Передаем teacher при GET запросе
+        form = FileForm(teacher=teacher) 
 
     return render(request, 'portfolio/file_form.html', {
         'form': form,
@@ -1275,12 +1274,11 @@ def file_delete(request, pk):
     
     file = get_object_or_404(File, pk=pk)
     
-    # Проверяем, что файл принадлежит педагогу
     try:
         if hasattr(file.content_object, 'teacher') and file.content_object.teacher == teacher:
-            pass  # Разрешаем удаление
+            pass  
         elif isinstance(file.content_object, Teacher) and file.content_object == teacher:
-            pass  # Разрешаем удаление
+            pass  
         else:
             return redirect('portfolio:file_list')
     except:
@@ -1314,16 +1312,13 @@ def get_objects_for_content_type(request):
         except ContentType.DoesNotExist:
             return JsonResponse({'error': 'Invalid content_type_id'}, status=400)
 
-        # Получаем queryset для выбранного типа
         model_class = content_type.model_class()
         
-        # Начинаем с пустого queryset
         queryset = model_class.objects.none() 
 
         try:
             teacher = request.user.teacher
             
-            # --- Логика фильтрации объектов в зависимости от типа модели ---
             if model_class == Teacher:
                 # Педагог может прикреплять файлы только к своему профилю
                 queryset = model_class.objects.filter(pk=teacher.pk)
@@ -1344,26 +1339,17 @@ def get_objects_for_content_type(request):
                 # Студенты групп, по которым у педагога нагрузка
                 queryset = model_class.objects.filter(group__teaching_loads__teacher=teacher).distinct()
             
-            # Добавьте другие условия фильтрации по мере необходимости
-            # Например, для Grade, Publication и т.д., если нужно ограничить доступ
             
-            # Если ни одно условие не подошло, queryset останется пустым (model_class.objects.none())
 
         except Teacher.DoesNotExist:
-            # Если у пользователя нет связанного педагога, возвращаем пустой список
-            pass # queryset уже пустой
+            pass 
 
-        # Формируем список объектов для JSON ответа
         objects_data = []
-        # Ограничиваем количество объектов для предотвращения перегрузки
-        # Можно добавить пагинацию, если объектов много
         for obj in queryset[:100]: 
-            # Формируем отображаемое имя
-            # Используем __str__ модели, можно кастомизировать
-            display_name = f"{obj} (ID: {obj.pk})" # Более информативное имя
+            display_name = f"{obj} (ID: {obj.pk})" 
             objects_data.append({
                 'id': obj.pk,
-                'display_name': str(display_name) # Убедимся, что это строка
+                'display_name': str(display_name) 
             })
 
         return JsonResponse({'objects': objects_data})

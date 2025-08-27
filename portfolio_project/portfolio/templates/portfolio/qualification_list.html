@@ -18,6 +18,7 @@
             <th>Дата выдачи</th>
             <th>Часы</th>
             <th>Номер сертификата</th>
+            <th>Файлы</th> 
             <th>Действия</th>
         </tr>
     </thead>
@@ -29,6 +30,31 @@
             <td>{{ qualification.issue_date|date:"d.m.Y" }}</td>
             <td>{{ qualification.hours }}</td>
             <td>{{ qualification.certificate_number|default:"—" }}</td>
+            <td>
+                {% if qualification.files.all %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for file in qualification.files.all %}
+                            {% if file.file_type in image_file_types %}
+                                <a 
+                                    href="#" 
+                                    class="image-preview" 
+                                    data-src="{{ file.file_path.url }}" 
+                                    data-title="{{ file.file_name }}" 
+                                    data-description="{{ file.description|default:'' }}"
+                                >
+                                    <img src="{{ file.file_path.url }}" alt="{{ file.file_name }}" class="img-thumbnail" style="max-width: 80px; max-height: 80px;">
+                                </a>
+                            {% else %}
+                                <a href="{{ file.file_path.url }}" target="_blank" class="text-decoration-none">
+                                    <i class="fas fa-file"></i> {{ file.file_name }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <span class="text-muted">—</span>
+                {% endif %}
+            </td>
             <td>
                 <div class="d-flex gap-2">
                     <a href="{% url 'portfolio:qualification_edit' qualification.pk %}" class="btn btn-sm btn-outline-primary">
@@ -52,4 +78,29 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
     <a href="{% url 'portfolio:home' %}" class="btn btn-secondary">Назад на главную</a>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imagePreviews = document.querySelectorAll('.image-preview');
+    
+    imagePreviews.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const src = this.getAttribute('data-src');
+            const title = this.getAttribute('data-title');
+            const description = this.getAttribute('data-description');
+            
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModalLabel').textContent = title;
+            document.getElementById('modalDescription').textContent = description || '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -542,7 +542,7 @@ class Olympiad(models.Model):
         verbose_name = "Олимпиада"
         verbose_name_plural = "Олимпиады"
         indexes = [
-            models.Index(fields=['teacher_id', 'level']),  #  ускорения запросов
+            models.Index(fields=['teacher_id', 'level']),  
         ]
 
     def __str__(self):
@@ -580,8 +580,7 @@ class File(models.Model):
     
     # Информация о файле
     file_name = models.CharField("Имя файла", max_length=255)
-    file_path = models.FileField("Файл", upload_to='files/')  # Используем FileField!
-    
+    file_path = models.FileField("Файл", upload_to='files/')  
     FILE_TYPE_CHOICES = [
         ('PDF', 'PDF'),
         ('JPG', 'JPG'),
@@ -593,23 +592,20 @@ class File(models.Model):
     file_type = models.CharField("Тип файла", max_length=50, choices=FILE_TYPE_CHOICES)
     file_size = models.BigIntegerField(
         "Размер", 
-        default=0  # Устанавливаем дефолтное значение
+        default=0  
     )
     upload_date = models.DateTimeField("Дата загрузки", auto_now_add=True)
     description = models.CharField("Описание", max_length=255, blank=True, null=True)
     
-    # Используем кастомный менеджер
     objects = FileManager()
 
     class Meta:
         db_table = 'files'
         verbose_name = "Файл"
         verbose_name_plural = "Файлы"
-        # Добавляем индекс для ускорения запросов
         indexes = [
             models.Index(fields=['content_type', 'object_id']),
         ]
-        # Добавляем ограничения из вашего дампа
         constraints = [
             models.CheckConstraint(
                 check=models.Q(file_size__gt=0),
@@ -630,63 +626,44 @@ class File(models.Model):
     
     def save(self, *args, **kwargs):
    
-        # Проверяем, привязан ли файл (обычно происходит в form.save(commit=False))
         if self.file_path:
-            # Устанавливаем имя файла, если оно не задано
             if not self.file_name:
                 self.file_name = self.file_path.name
 
-            # Определяем и устанавливаем тип файла из расширения
             if not self.file_type and '.' in self.file_path.name:
                 ext = self.file_path.name.split('.')[-1].upper()
                 if ext in dict(self.FILE_TYPE_CHOICES):
                     self.file_type = ext
 
-            # КРИТИЧЕСКИ ВАЖНО: Получаем и устанавливаем размер файла ДО вызова super().save()
-            # Это необходимо для соблюдения CHECK constraint (file_size > 0) в БД.
-            # file_path.size должен быть доступен после привязки файла из формы.
             if not self.file_size or self.file_size <= 0:
                 try:
-                    # Пытаемся получить размер файла из самого FileField объекта
                     file_size = self.file_path.size
                     if file_size is not None and file_size > 0:
                         self.file_size = file_size
                     else:
-                        # Если размер 0 или None, файл считается некорректным/пустым
                         raise ValueError("Загруженный файл пустой или его размер не может быть определен.")
                 except (AttributeError, ValueError) as e:
-                    # Если размер не доступен или файл пустой, вызываем ошибку
-                    # Это остановит процесс сохранения до нарушения constraint
                     raise ValueError(f"Ошибка при определении размера файла: {e}")
 
-        # Дополнительная проверка перед сохранением
         if self.file_size is None or self.file_size <= 0:
             raise ValueError("Размер файла должен быть больше 0. Файл не может быть сохранен.")
 
-        # Если все поля корректны, вызываем оригинальный save
         super().save(*args, **kwargs)
         
-        # После сохранения проверяем размер файла
-        # Это необходимо, если размер не был известен до сохранения
         if self.file_path and (self.file_size is None or self.file_size <= 0):
             try:
-                # Получаем путь к сохраненному файлу
                 file_path_on_disk = self.file_path.path
                 if os.path.exists(file_path_on_disk):
                     actual_size = os.path.getsize(file_path_on_disk)
                     if actual_size > 0:
                         self.file_size = actual_size
-                        # Обновляем только поле file_size, чтобы избежать рекурсии
                         File.objects.filter(pk=self.pk).update(file_size=self.file_size)
                     else:
-                        # Файл пустой, удаляем запись и файл
                         self.delete()
                         if os.path.exists(file_path_on_disk):
                             os.remove(file_path_on_disk)
                         raise ValueError("Файл пустой")
             except Exception as e:
-                # Если возникла ошибка при определении размера или файл пустой
-                # Удаляем запись из БД и файл из файловой системы
                 try:
                     if self.file_path and hasattr(self.file_path, 'path'):
                         file_path_on_disk = self.file_path.path
@@ -695,7 +672,7 @@ class File(models.Model):
                 except:
                     pass
                 self.delete()
-                raise e # Перебрасываем исключение, чтобы его можно было обработать выше
+                raise e 
     
 class TeacherExperience(models.Model):
     teacher_id = models.IntegerField(primary_key=True)

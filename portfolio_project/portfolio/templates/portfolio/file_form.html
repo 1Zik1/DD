@@ -1,5 +1,5 @@
 {% extends 'portfolio/base.html' %}
-{% load static %} <!-- Добавляем для возможного использования static файлов -->
+{% load static %} 
 {% block title %}{{ title }}{% endblock %}
 {% block header %}{{ title }}{% endblock %}
 {% block content %}
@@ -92,7 +92,7 @@
             function updateObjectChoices() {
                 const selectedContentTypeId = contentTypeSelect.value;
 
-                // Очищаем список объектов
+                // Очищение списка объектов
                 objectIdSelect.innerHTML = '<option value="">---------</option>';
 
                 if (!selectedContentTypeId) {
@@ -100,9 +100,8 @@
                     return;
                 }
 
-                objectIdSelect.disabled = true; // Блокируем на время загрузки
+                objectIdSelect.disabled = true; 
 
-                // Отправляем AJAX запрос для получения объектов
                 fetch("{% url 'portfolio:get_objects_for_content_type' %}", {
                     method: 'POST',
                     headers: {
@@ -125,20 +124,17 @@
                         objectIdSelect.disabled = false;
                     } else if (data.error) {
                         console.error('Error fetching objects:', data.error);
-                        objectIdSelect.disabled = false; // Разблокируем даже при ошибке
+                        objectIdSelect.disabled = false; 
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    objectIdSelect.disabled = false; // Разблокируем даже при ошибке
+                    objectIdSelect.disabled = false; 
                 });
             }
 
-            // Добавляем обработчик события на изменение типа контента
             contentTypeSelect.addEventListener('change', updateObjectChoices);
 
-            // Если тип контента уже выбран (например, при повторной загрузке страницы с ошибками),
-            // обновляем список объектов
             if (contentTypeSelect.value) {
                 updateObjectChoices();
             }
